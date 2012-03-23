@@ -10,9 +10,9 @@ CND_CONF=uno-128k
 CND_DISTDIR=dist
 TMPDIR=build/${CND_CONF}/${IMAGE_TYPE}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/arduino-booloader.X.${IMAGE_TYPE}.elf
-OUTPUT_BASENAME=arduino-booloader.X.${IMAGE_TYPE}.elf
-PACKAGE_TOP_DIR=arduino-booloader.x/
+OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/pic32-Arduino-Bootloader.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+OUTPUT_BASENAME=pic32-Arduino-Bootloader.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+PACKAGE_TOP_DIR=pic32-arduino-bootloader/
 
 # Functions
 function checkReturnCode
@@ -57,15 +57,15 @@ mkdir -p ${TMPDIR}
 
 # Copy files and create directories and links
 cd "${TOP}"
-makeDirectory ${TMPDIR}/arduino-booloader.x/bin
+makeDirectory ${TMPDIR}/pic32-arduino-bootloader/bin
 copyFileToTmpDir "${OUTPUT_PATH}" "${TMPDIR}/${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}" 0755
 
 
 # Generate tar file
 cd "${TOP}"
-rm -f ${CND_DISTDIR}/${CND_CONF}/package/arduino-booloader.x.tar
+rm -f ${CND_DISTDIR}/${CND_CONF}/package/pic32-arduino-bootloader.tar
 cd ${TMPDIR}
-tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/arduino-booloader.x.tar *
+tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/pic32-arduino-bootloader.tar *
 checkReturnCode
 
 # Cleanup

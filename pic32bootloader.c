@@ -47,8 +47,8 @@
 //************************************************************************
 
 #define	_VERSION_MAJOR_		1
-#define	_VERSION_MINOR_		1
-#define	_VERSION_STRING_	"V1.1"
+#define	_VERSION_MINOR_		2
+#define	_VERSION_STRING_	"V1.2"
 
 #define _USE_RELEASE_OPTIONS_
 
@@ -73,6 +73,7 @@
  	#define	_LED2_ON_PORT_F
  	#define	_LED2_BIT_	BIT_0
 
+	#define _USE_WORD_WRITE_
 
 //************************************************************************
 #elif defined(_BOARD_DIGILENT_MEGA_)
@@ -1135,6 +1136,7 @@ unsigned char	*dataPtr;
 unsigned char   keepGoing;
 
 unsigned long	boot_timeout;
+unsigned long	garbage_timeout;	// goes off if too much garbage (non stk500 data) comes in
 unsigned long	boot_timer;
 unsigned int	boot_state;
 uint32_t		tempaddress;
@@ -1306,6 +1308,8 @@ unsigned char	chipNeedsToBeErased;
 			//*	main loop
 			ii			=	0;
 			keepGoing	=	true;
+			garbage_timeout	=	0;
+
 			while (keepGoing)
 			{
 				/*
@@ -1355,6 +1359,14 @@ unsigned char	chipNeedsToBeErased;
 							{
 								msgParseState	=	ST_GET_SEQ_NUM;
 								checksum		=	MESSAGE_START ^ 0;
+							}
+							else
+							{
+								// If spent too much time at the ST_START
+								// status without valid incoming data, jump
+								// to app.
+								if (garbage_timeout++ > 10)
+									JumpToApp();
 							}
 							break;
 
@@ -1409,6 +1421,9 @@ unsigned char	chipNeedsToBeErased;
 							if ( theChar == checksum )
 							{
 								msgParseState	=	ST_PROCESS;
+								// Clear the garbage timeout since we do have
+								// some valid data coming in.
+								garbage_timeout	=	0;
 							}
 							else
 							{
@@ -1987,7 +2002,7 @@ enum
 	prog_char	gTextMsg_CPU_Name[]			PROGMEM	=	"UNKNOWN";
 #endif
 
-	prog_char	gTextMsg_Explorer[]			PROGMEM	=	"Explorer stk500V2 by MLS " _VERSION_STRING_;
+	prog_char	gTextMsg_Explorer[]			PROGMEM	=	"Explorer stk500V2 by MLS/jamarju " _VERSION_STRING_;
 	prog_char	gTextMsg_Prompt[]			PROGMEM	=	"Bootloader>";
 	prog_char	gTextMsg_HUH[]				PROGMEM	=	"Huh?";
 	prog_char	gTextMsg_COMPILED_ON[]		PROGMEM	=	"Compiled on = ";

@@ -9,118 +9,133 @@
 
 # Include project Makefile
 include Makefile
+# Include makefile containing local settings
+ifeq "$(wildcard nbproject/Makefile-local-mikroe-MultiMediaBoard.mk)" "nbproject/Makefile-local-mikroe-MultiMediaBoard.mk"
+include nbproject/Makefile-local-mikroe-MultiMediaBoard.mk
+endif
 
 # Environment
-MKDIR=mkdir -p
+MKDIR=gnumkdir -p
 RM=rm -f 
+MV=mv 
 CP=cp 
+
 # Macros
 CND_CONF=mikroe-MultiMediaBoard
-
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 IMAGE_TYPE=debug
-FINAL_IMAGE=dist/${CND_CONF}/${IMAGE_TYPE}/arduino-booloader.X.${IMAGE_TYPE}.elf
+OUTPUT_SUFFIX=elf
+DEBUGGABLE_SUFFIX=elf
+FINAL_IMAGE=dist/${CND_CONF}/${IMAGE_TYPE}/pic32-Arduino-Bootloader.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
 else
 IMAGE_TYPE=production
-FINAL_IMAGE=dist/${CND_CONF}/${IMAGE_TYPE}/arduino-booloader.X.${IMAGE_TYPE}.elf
+OUTPUT_SUFFIX=hex
+DEBUGGABLE_SUFFIX=elf
+FINAL_IMAGE=dist/${CND_CONF}/${IMAGE_TYPE}/pic32-Arduino-Bootloader.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
 endif
+
 # Object Directory
 OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
+
 # Distribution Directory
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
+# Object Files Quoted if spaced
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/pic32bootloader.o ${OBJECTDIR}/startup.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/pic32bootloader.o.d ${OBJECTDIR}/startup.o.d
+
 # Object Files
-OBJECTFILES=${OBJECTDIR}/startup.o ${OBJECTDIR}/pic32bootloader.o
+OBJECTFILES=${OBJECTDIR}/pic32bootloader.o ${OBJECTDIR}/startup.o
 
 
 CFLAGS=
 ASFLAGS=
 LDLIBSOPTIONS=
 
-OS_ORIGINAL="Darwin"
-OS_CURRENT="$(shell uname -s)"
 ############# Tool locations ##########################################
 # If you copy a project from one host to another, the path where the  #
 # compiler is installed may be different.                             #
 # If you open this project with MPLAB X in the new host, this         #
 # makefile will be regenerated and the paths will be corrected.       #
 #######################################################################
-MP_CC=/Applications/microchip/mplabc32/v1.11a/bin/pic32-gcc
-MP_AS=/Applications/microchip/mplabc32/v1.11a/bin/pic32-as
-MP_LD=/Applications/microchip/mplabc32/v1.11a/bin/pic32-ld
-MP_AR=/Applications/microchip/mplabc32/v1.11a/bin/pic32-ar
-MP_CC_DIR=/Applications/microchip/mplabc32/v1.11a/bin
-MP_AS_DIR=/Applications/microchip/mplabc32/v1.11a/bin
-MP_LD_DIR=/Applications/microchip/mplabc32/v1.11a/bin
-MP_AR_DIR=/Applications/microchip/mplabc32/v1.11a/bin
-.build-conf: ${BUILD_SUBPROJECTS}
-ifneq ($(OS_CURRENT),$(OS_ORIGINAL))
-	@echo "***** WARNING: This make file contains OS dependent code. The OS this makefile is being run is different from the OS it was created in."
-endif
-	${MAKE}  -f nbproject/Makefile-mikroe-MultiMediaBoard.mk dist/${CND_CONF}/${IMAGE_TYPE}/arduino-booloader.X.${IMAGE_TYPE}.elf
+# fixDeps replaces a bunch of sed/cat/printf statements that slow down the build
+FIXDEPS=fixDeps
 
+.build-conf:  ${BUILD_SUBPROJECTS}
+	${MAKE}  -f nbproject/Makefile-mikroe-MultiMediaBoard.mk dist/${CND_CONF}/${IMAGE_TYPE}/pic32-Arduino-Bootloader.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+
+MP_PROCESSOR_OPTION=32MX460F512L
+MP_LINKER_FILE_OPTION=,--script="boot-linkerscript.ld"
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: assemble
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-.PHONY: ${OBJECTDIR}/startup.o
-${OBJECTDIR}/startup.o: startup.S  nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} ${OBJECTDIR} 
-	${MP_CC}  -D__DEBUG  -D__MPLAB_DEBUGGER_ICD3=1 -c -mprocessor=32MX460F512L  -o ${OBJECTDIR}/startup.o startup.S  -Wa,--defsym=__MPLAB_BUILD=1,--defsym=__MPLAB_DEBUG=1,--defsym=__ICD2RAM=1,--defsym=__DEBUG=1,--defsym=__MPLAB_DEBUGGER_ICD3=1,--gdwarf-2
 else
-.PHONY: ${OBJECTDIR}/startup.o
+endif
+
+# ------------------------------------------------------------------------------------
+# Rules for buildStep: assembleWithPreprocess
+ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 ${OBJECTDIR}/startup.o: startup.S  nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} ${OBJECTDIR} 
-	${MP_CC}  -c -mprocessor=32MX460F512L  -o ${OBJECTDIR}/startup.o startup.S  -Wa,--defsym=__MPLAB_BUILD=1
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/startup.o.d 
+	@${RM} ${OBJECTDIR}/startup.o.ok ${OBJECTDIR}/startup.o.err 
+	@${FIXDEPS} "${OBJECTDIR}/startup.o.d" "${OBJECTDIR}/startup.o.asm.d" -t $(SILENT) -c ${MP_CC} $(MP_EXTRA_AS_PRE)  -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/startup.o.d"  -o ${OBJECTDIR}/startup.o startup.S  -Wa,--defsym=__MPLAB_BUILD=1$(MP_EXTRA_AS_POST),-MD="${OBJECTDIR}/startup.o.asm.d",--defsym=__MPLAB_DEBUG=1,--defsym=__ICD2RAM=1,--gdwarf-2,--defsym=__DEBUG=1,--defsym=__MPLAB_DEBUGGER_ICD3=1
+	
+else
+${OBJECTDIR}/startup.o: startup.S  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/startup.o.d 
+	@${RM} ${OBJECTDIR}/startup.o.ok ${OBJECTDIR}/startup.o.err 
+	@${FIXDEPS} "${OBJECTDIR}/startup.o.d" "${OBJECTDIR}/startup.o.asm.d" -t $(SILENT) -c ${MP_CC} $(MP_EXTRA_AS_PRE)  -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/startup.o.d"  -o ${OBJECTDIR}/startup.o startup.S  -Wa,--defsym=__MPLAB_BUILD=1$(MP_EXTRA_AS_POST),-MD="${OBJECTDIR}/startup.o.asm.d",--gdwarf-2
+	
 endif
 
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 ${OBJECTDIR}/pic32bootloader.o: pic32bootloader.c  nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} ${OBJECTDIR} 
-	${RM} ${OBJECTDIR}/pic32bootloader.o.d 
-	${MP_CC} -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -x c -c -mprocessor=32MX460F512L -ffunction-sections -fdata-sections -mips16 -D_BOARD_MIKROE_MULTIMEDIA_ -Os -MMD -MF ${OBJECTDIR}/pic32bootloader.o.d -o ${OBJECTDIR}/pic32bootloader.o pic32bootloader.c 
-ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
-	 sed -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/pic32bootloader.o.d > ${OBJECTDIR}/pic32bootloader.o.tmp
-	${RM} ${OBJECTDIR}/pic32bootloader.o.d 
-	${CP} ${OBJECTDIR}/pic32bootloader.o.tmp ${OBJECTDIR}/pic32bootloader.o.d 
-	${RM} ${OBJECTDIR}/pic32bootloader.o.tmp}
-endif
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/pic32bootloader.o.d 
+	@${FIXDEPS} "${OBJECTDIR}/pic32bootloader.o.d" $(SILENT) -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -x c -c -mprocessor=$(MP_PROCESSOR_OPTION) -ffunction-sections -fdata-sections -mips16 -D_BOARD_MIKROE_MULTIMEDIA_ -Os -MMD -MF "${OBJECTDIR}/pic32bootloader.o.d" -o ${OBJECTDIR}/pic32bootloader.o pic32bootloader.c  
+	
 else
 ${OBJECTDIR}/pic32bootloader.o: pic32bootloader.c  nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} ${OBJECTDIR} 
-	${RM} ${OBJECTDIR}/pic32bootloader.o.d 
-	${MP_CC}  -x c -c -mprocessor=32MX460F512L -ffunction-sections -fdata-sections -mips16 -D_BOARD_MIKROE_MULTIMEDIA_ -Os -MMD -MF ${OBJECTDIR}/pic32bootloader.o.d -o ${OBJECTDIR}/pic32bootloader.o pic32bootloader.c 
-ifneq (,$(findstring MINGW32,$(OS_CURRENT))) 
-	 sed -e 's/\\$$/__EOL__/g' -e 's/\\ /__ESCAPED_SPACES__/g' -e 's/\\/\//g' -e 's/__ESCAPED_SPACES__/\\ /g' -e 's/__EOL__$$/\\/g' ${OBJECTDIR}/pic32bootloader.o.d > ${OBJECTDIR}/pic32bootloader.o.tmp
-	${RM} ${OBJECTDIR}/pic32bootloader.o.d 
-	${CP} ${OBJECTDIR}/pic32bootloader.o.tmp ${OBJECTDIR}/pic32bootloader.o.d 
-	${RM} ${OBJECTDIR}/pic32bootloader.o.tmp}
-endif
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/pic32bootloader.o.d 
+	@${FIXDEPS} "${OBJECTDIR}/pic32bootloader.o.d" $(SILENT) -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION) -ffunction-sections -fdata-sections -mips16 -D_BOARD_MIKROE_MULTIMEDIA_ -Os -MMD -MF "${OBJECTDIR}/pic32bootloader.o.d" -o ${OBJECTDIR}/pic32bootloader.o pic32bootloader.c  
+	
 endif
 
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: link
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-dist/${CND_CONF}/${IMAGE_TYPE}/arduino-booloader.X.${IMAGE_TYPE}.elf: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
-	${MP_CC}  -mdebugger -D__MPLAB_DEBUGGER_ICD3=1 -mprocessor=32MX460F512L -nostartfiles -o dist/${CND_CONF}/${IMAGE_TYPE}/arduino-booloader.X.${IMAGE_TYPE}.elf ${OBJECTFILES}      -Wl,--defsym=__MPLAB_BUILD=1,--script=boot-linkerscript.ld,--defsym=__MPLAB_DEBUG=1,--defsym=__ICD2RAM=1,--defsym=__DEBUG=1,--defsym=__MPLAB_DEBUGGER_ICD3=1,--gc-sections,-Map="map.txt",--cref,-Os
+dist/${CND_CONF}/${IMAGE_TYPE}/pic32-Arduino-Bootloader.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
+	${MP_CC} $(MP_EXTRA_LD_PRE)  -mdebugger -D__MPLAB_DEBUGGER_ICD3=1 -mprocessor=$(MP_PROCESSOR_OPTION) -Os -nostartfiles -o dist/${CND_CONF}/${IMAGE_TYPE}/pic32-Arduino-Bootloader.${IMAGE_TYPE}.${OUTPUT_SUFFIX} ${OBJECTFILES_QUOTED_IF_SPACED}        -Wl,--defsym=__MPLAB_BUILD=1$(MP_EXTRA_LD_POST)$(MP_LINKER_FILE_OPTION),--defsym=__MPLAB_DEBUG=1,--defsym=__ICD2RAM=1,--defsym=__DEBUG=1,--defsym=__MPLAB_DEBUGGER_ICD3=1,--gc-sections,-Map="map.txt",--cref 
 else
-dist/${CND_CONF}/${IMAGE_TYPE}/arduino-booloader.X.${IMAGE_TYPE}.elf: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
-	${MP_CC}  -mprocessor=32MX460F512L -nostartfiles -o dist/${CND_CONF}/${IMAGE_TYPE}/arduino-booloader.X.${IMAGE_TYPE}.elf ${OBJECTFILES}      -Wl,--defsym=__MPLAB_BUILD=1,--script=boot-linkerscript.ld,--gc-sections,-Map="map.txt",--cref,-Os
-	${MP_CC_DIR}/pic32-bin2hex dist/${CND_CONF}/${IMAGE_TYPE}/arduino-booloader.X.${IMAGE_TYPE}.elf 
+dist/${CND_CONF}/${IMAGE_TYPE}/pic32-Arduino-Bootloader.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
+	${MP_CC} $(MP_EXTRA_LD_PRE)  -mprocessor=$(MP_PROCESSOR_OPTION) -Os -nostartfiles -o dist/${CND_CONF}/${IMAGE_TYPE}/pic32-Arduino-Bootloader.${IMAGE_TYPE}.${DEBUGGABLE_SUFFIX} ${OBJECTFILES_QUOTED_IF_SPACED}        -Wl,--defsym=__MPLAB_BUILD=1$(MP_EXTRA_LD_POST)$(MP_LINKER_FILE_OPTION),--gc-sections,-Map="map.txt",--cref
+	${MP_CC_DIR}\\pic32-bin2hex dist/${CND_CONF}/${IMAGE_TYPE}/pic32-Arduino-Bootloader.${IMAGE_TYPE}.${DEBUGGABLE_SUFFIX}  
 endif
 
 
 # Subprojects
 .build-subprojects:
 
+
+# Subprojects
+.clean-subprojects:
+
 # Clean Targets
-.clean-conf:
+.clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r build/mikroe-MultiMediaBoard
-	${RM} -r dist
+	${RM} -r dist/mikroe-MultiMediaBoard
+
 # Enable dependency checking
 .dep.inc: .depcheck-impl
 
-include .dep.inc
+DEPFILES=$(shell mplabwildcard ${POSSIBLE_DEPFILES})
+ifneq (${DEPFILES},)
+include ${DEPFILES}
+endif
